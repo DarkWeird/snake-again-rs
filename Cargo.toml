@@ -1,0 +1,12 @@
+[package]
+name = "snake-again"
+version = "0.1.0"
+authors = ["Nail.Khanipov <foxflameless@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+termion = "=1.5.1"
+rand = "*"
+
+[patch.crates-io]
+termion = {git = "https://gitlab.redox-os.org/Jezza/termion.git", branch = "windows-support"}
