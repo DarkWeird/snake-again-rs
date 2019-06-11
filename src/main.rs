@@ -44,14 +44,14 @@ fn get_distance(from: &Pos, to: &Pos) -> i32 {
 
 fn build_path(size: Size, snake: &VecDeque<Pos>, food: Pos) -> Direction {
     let mut vec: Vec<(u16, u16)> = get_neighbours(snake.front().unwrap());
-    let mut finded = false;
+    let mut found = false;
     let mut inspected = HashSet::new();
-    while !(finded || vec.is_empty()) {
+    while !(found || vec.is_empty()) {
         vec.sort_by_key(|e|
             -get_distance(&e, &food));
         let candidate = vec.pop().unwrap();
         if candidate == food {
-            finded = true;
+            found = true;
         }
         if snake.contains(&candidate) ||
             !(0..size.0).contains(&candidate.0) ||
