@@ -4,7 +4,7 @@ use std::cell::RefCell;
 pub type Pos = (u16, u16);
 pub type Size = (u16, u16);
 
-#[derive(Debug,Clone,PartialOrd, PartialEq)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub enum Direction {
     Left,
     Up,
@@ -30,13 +30,15 @@ pub struct Game {
 
 impl Game {
     pub fn new(size: Size) -> Game {
-        Game {
+        let mut game = Game {
             field: size,
             snake: Game::build_snake(&size),
-            food: Game::rand_food(&size),
+            food: (0, 0),
             score: 0,
             direction: Direction::Right,
-        }
+        };
+        game.food = game.rand_food();
+        game
     }
 
     fn build_snake(field_size: &Size) -> VecDeque<Pos> {
@@ -64,7 +66,7 @@ impl Game {
         } else {
             self.snake.push_front(candidate);
             if self.food == candidate {
-                self.food = Game::rand_food(&self.field);
+                self.food = self.rand_food();
                 MoveResult::Yummi { new_pos: candidate, food: self.food }
             } else {
                 self.snake.pop_back().unwrap();
@@ -79,9 +81,17 @@ impl Game {
         }
     }
 
-    fn rand_food(field_size: &Size) -> Pos {
-        (rand::random::<u16>() % field_size.0,
-         rand::random::<u16>() % field_size.1)
+    fn rand_food(&self) -> Pos {
+        let mut possible_places = Vec::with_capacity((self.field.0 * self.field.1) as usize);
+        for x in 0..self.field.0 {
+            for y in 0..self.field.1 {
+                let candidate = (x as u16, y as u16);
+                if !self.snake.contains(&candidate) {
+                    possible_places.push(candidate)
+                }
+            }
+        }
+        possible_places.remove(rand::random::<usize>() % possible_places.len())
     }
 
     pub fn get_food_pos(&self) -> Pos {
@@ -116,14 +126,6 @@ mod tests {
         assert_eq!(deque.pop_front(), Some((2, 5)));
         assert_eq!(deque.pop_front(), Some((1, 5)));
         assert_eq!(deque.pop_front(), None);
-    }
-
-    #[test]
-    fn rand_food_test() {
-        let size: Size = (10, 10);
-        let new_pos = Game::rand_food(&size);
-        assert!((0..size.0).contains(&new_pos.0));
-        assert!((0..size.1).contains(&new_pos.1));
     }
 
     #[test]
